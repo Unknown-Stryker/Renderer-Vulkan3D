@@ -24,6 +24,8 @@ ADD_EXECUTABLE(	${FE_RENDERER_TEST}
 				${CMAKE_CURRENT_SOURCE_DIR}/../../FE/renderer/private/window.cpp
 				${CMAKE_CURRENT_SOURCE_DIR}/../../FE/renderer/pipeline.hpp
 				${CMAKE_CURRENT_SOURCE_DIR}/../../FE/renderer/private/pipeline.cpp
+				${CMAKE_CURRENT_SOURCE_DIR}/../../FE/renderer/device.hpp
+				${CMAKE_CURRENT_SOURCE_DIR}/../../FE/renderer/private/device.cpp
 				)
 
 
