@@ -1,0 +1,7 @@
+*.so binary
+*.a binary
+*.dll binary
+*.lib binary
+*.sh binary
+*.bat binary
+*.exe filter=lfs diff=lfs merge=lfs -text
