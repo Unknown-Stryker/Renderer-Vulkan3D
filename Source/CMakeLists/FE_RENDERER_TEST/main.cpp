@@ -14,7 +14,7 @@
 
 
 
-
+// FE.log does not print messages to a file when it is operating outside of its development project or an app entry C++ file
 //https://learn.microsoft.com/en-us/cpp/build/profile-guided-optimizations?view=msvc-170
 // Profile Guided Optimization
 class vulkan_renderer final : public FE::framework::application
@@ -29,7 +29,6 @@ public:
 private:
 	virtual void set_up(_MAYBE_UNUSED_ int argc_p, _MAYBE_UNUSED_ char** argv_p) override final
 	{
-	
 	}
 	
 	virtual int run(_MAYBE_UNUSED_ int argc_p, _MAYBE_UNUSED_ char** argv_p) override final
