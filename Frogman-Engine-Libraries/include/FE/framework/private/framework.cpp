@@ -44,9 +44,9 @@ void application::__set_up_main() noexcept
 
 void application::__shutdown_main() noexcept
 {
+	delete FE::framework::application::s_app;
 	FE::pool_allocator_base<FE::SIMD_auto_alignment>::destroy_pool_allocator_resource();
 	FE::framework::function_table::destroy_function_table();
-	delete FE::framework::application::s_app;
 }
 
 _NORETURN_ void application::__abnormal_shutdown_with_exit_code(int32 signal_p)

@@ -98,7 +98,7 @@ public:
 #endif
 	}
 
-	template<typename T, class Alignment = typename FE::SIMD_auto_alignment::alignment_type>
+	template<typename T, class Alignment = typename FE::SIMD_auto_alignment>
 	_FORCE_INLINE_ T* trackable_alloc(size_t bytes_p) noexcept
 	{
 		T* const l_result = (T*)ALIGNED_ALLOC(bytes_p, Alignment::size);
@@ -116,7 +116,7 @@ public:
 		return l_result;
 	}
 
-	template<typename T, class Alignment = typename FE::SIMD_auto_alignment::alignment_type>
+	template<typename T, class Alignment = typename FE::SIMD_auto_alignment>
 	_FORCE_INLINE_ void trackable_free(T* const ptr_to_memory_p, _MAYBE_UNUSED_ size_t bytes_p) noexcept
 	{
 		FE_ASSERT((reinterpret_cast<uintptr_t>(ptr_to_memory_p) % Alignment::size) != 0, "${%s@0}: The allocated heap memory address not aligned by ${%lu@1}.", TO_STRING(MEMORY_ERROR_1XX::_ERROR_ILLEGAL_ADDRESS_ALIGNMENT), &Alignment::size);
@@ -128,7 +128,7 @@ public:
 #endif 
 	}
 
-	template<typename T, class Alignment = typename FE::SIMD_auto_alignment::alignment_type>
+	template<typename T, class Alignment = typename FE::SIMD_auto_alignment>
 	_FORCE_INLINE_ T* trackable_realloc(T* const ptr_to_memory_p, size_t prev_bytes_p, size_t new_bytes_p) noexcept
 	{
 		T* l_realloc_result = (T*)ALIGNED_REALLOC(ptr_to_memory_p, new_bytes_p, Alignment::size);

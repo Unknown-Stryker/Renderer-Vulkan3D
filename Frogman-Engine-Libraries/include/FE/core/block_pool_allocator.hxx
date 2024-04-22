@@ -43,7 +43,7 @@ public:
 	using size_type = var::size_t;
 
 	_MAYBE_UNUSED_ static constexpr inline auto is_trivial = FE::is_trivial<value_type>::value;
-	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment::alignment_type, FE::align_custom_bytes<sizeof(T)>>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
+	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment, FE::align_custom_bytes<sizeof(T)>>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
 
 
 	constexpr new_delete_block_pool_allocator() noexcept {}
@@ -105,7 +105,7 @@ public:
 	using size_type = var::size_t;
 
 	_MAYBE_UNUSED_ static constexpr inline auto is_trivial = FE::is_trivial<value_type>::value;
-	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment::alignment_type, FE::align_custom_bytes<sizeof(T)>>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
+	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment, FE::align_custom_bytes<sizeof(T)>>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
 
 
 	constexpr block_pool_allocator() noexcept {}
@@ -167,7 +167,7 @@ public:
 	using size_type = var::size_t;
 
 	_MAYBE_UNUSED_ static constexpr inline auto is_trivial = FE::is_trivial<value_type>::value;
-	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment::alignment_type, FE::align_custom_bytes<sizeof(T)>>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
+	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment, FE::align_custom_bytes<sizeof(T)>>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
 
 
 	constexpr new_delete_namespace_block_pool_allocator(const char* namespace_p = "global") noexcept : m_namespace(namespace_p) {}
@@ -236,7 +236,7 @@ public:
 	using size_type = var::size_t;
 
 	_MAYBE_UNUSED_ static constexpr inline auto is_trivial = FE::is_trivial<value_type>::value;
-	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment::alignment_type, FE::align_custom_bytes<sizeof(T)>>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
+	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment, FE::align_custom_bytes<sizeof(T)>>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
 
 
 	constexpr namespace_block_pool_allocator(const char* namespace_p = "global") noexcept : m_namespace(namespace_p) {}

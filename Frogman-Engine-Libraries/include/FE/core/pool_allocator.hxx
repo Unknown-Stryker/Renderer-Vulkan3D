@@ -26,7 +26,7 @@ public:
 	using alignment_type = Alignment;
 
 	_MAYBE_UNUSED_ static constexpr inline auto is_trivial = FE::is_trivial<value_type>::value;
-	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<alignment_type, FE::SIMD_auto_alignment::alignment_type>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
+	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<alignment_type, FE::SIMD_auto_alignment>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
 
 
 	constexpr pool_allocator() noexcept {}
@@ -100,7 +100,7 @@ public:
 	using size_type = var::size_t;
 
 	_MAYBE_UNUSED_ static constexpr inline auto is_trivial = FE::is_trivial<value_type>::value;
-	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment::alignment_type, Alignment>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
+	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment, Alignment>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
 
 
 	constexpr namespace_pool_allocator(const char* namespace_p = "global") noexcept : m_namespace(namespace_p) {}

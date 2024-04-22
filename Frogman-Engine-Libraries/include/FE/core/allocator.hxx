@@ -106,7 +106,7 @@ typename new_delete_allocator<Implementation>::allocator new_delete_allocator<Im
 
 
 
-template<typename T, class Alignment = typename FE::SIMD_auto_alignment::alignment_type>
+template<typename T, class Alignment = typename FE::SIMD_auto_alignment>
 class aligned_allocator : public allocator_base
 {
 public:
@@ -120,7 +120,7 @@ public:
 	using difference_type = var::ptrdiff_t;
 
 	_MAYBE_UNUSED_ static constexpr inline auto is_trivial = FE::is_trivial<value_type>::value;
-	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment::alignment_type, Alignment>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
+	_MAYBE_UNUSED_ static constexpr inline ADDRESS is_address_aligned = (std::is_same<FE::SIMD_auto_alignment, Alignment>::value == true) ? ADDRESS::_ALIGNED : ADDRESS::_NOT_ALIGNED;
 
 
 	constexpr aligned_allocator() noexcept {}

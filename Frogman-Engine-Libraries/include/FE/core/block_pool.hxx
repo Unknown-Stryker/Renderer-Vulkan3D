@@ -41,7 +41,7 @@ namespace internal::pool
         using pointer = typename block_info_type::pointer;
 
     private:
-        alignas(FE::SIMD_auto_alignment::alignment_type::size) std::array<var::byte, sizeof(T)* ChunkCapacity> m_memory;
+        alignas(FE::SIMD_auto_alignment::size) std::array<var::byte, sizeof(T)* ChunkCapacity> m_memory;
 
     public:
         constexpr static size_t chunk_capacity = ChunkCapacity;

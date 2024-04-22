@@ -160,7 +160,7 @@ struct SIMD_auto_alignment
 
 #pragma warning(push)
 #pragma warning(disable:4324)
-template<typename T, class Alignment = typename FE::SIMD_auto_alignment::alignment_type>
+template<typename T, class Alignment = typename FE::SIMD_auto_alignment>
 struct alignas(Alignment::size) aligned final
 {
 	using value_type = T;

@@ -15,8 +15,8 @@ BEGIN_NAMESPACE(FE::renderer)
 
 FE::string pipeline::__read_file(const char* const file_path_p) noexcept
 {
-	std::fstream l_file(file_path_p, std::ios::ate | std::ios::binary);
-	FE::fstream_guard l_guard(l_file);
+	std::ifstream l_file(file_path_p, std::ios::ate | std::ios::binary);
+	FE::ifstream_guard l_guard(l_file);
 
 	FE_ASSERT((l_file.is_open() == false), "Failed to open a shader file.");
 

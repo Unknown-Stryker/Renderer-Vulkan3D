@@ -94,7 +94,7 @@ namespace internal::pool
         using block_info_type = typename recycler_type::underlying_container_type::value_type;
 
     private:
-        alignas(FE::SIMD_auto_alignment::alignment_type::size) std::array<var::byte, ChunkCapacity> m_memory;
+        alignas(FE::SIMD_auto_alignment::size) std::array<var::byte, ChunkCapacity> m_memory;
         /*
          std::pair's first contains the address of the memory block.
          std::pair's second contains the size of the memory block.
