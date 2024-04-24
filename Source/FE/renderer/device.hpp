@@ -2,16 +2,22 @@
 #define _FE_RENDERER_DEVICE_HPP_
 #include <FE/core/prerequisites.h>
 #include <FE/renderer/settings.h>
-#include <FE/renderer/window.hpp>
 
 // std
 #include <string>
 #include <vector>
 
+// Renderer Libraries
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 
 
 
 BEGIN_NAMESPACE(FE::renderer)
+
+
+class window;
 
 
 struct swap_chain_support_details 
@@ -91,7 +97,7 @@ true;
     
 private:
     void __create_instance();
-    void __setup_debug_nessenger();
+    void __setup_debug_messenger();
     void __create_surface();
     void __pick_physical_device();
     void __create_logical_device();
@@ -99,18 +105,13 @@ private:
     
     // helper functions
     var::boolean __is_device_suitable(VkPhysicalDevice device_p);
-    std::vector<const char *> __get_required_extensions();
+    std::vector<const char*> __get_required_extensions();
     var::boolean __check_validation_layer_support();
     queue_family_indices __find_queue_families(VkPhysicalDevice device_p);
     void __populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateInfoEXT& create_info_p);
     void __has_GLFW_required_instance_extensions();
     var::boolean __check_device_extension_support(VkPhysicalDevice device_p);
     swap_chain_support_details __query_swap_chain_support(VkPhysicalDevice device_p);
-
-    device(const device&) = delete;
-    device& operator=(const device&) = delete;
-    device(device&&) = delete;
-    device& operator=(device&&) = delete;
 };
 
 }  // namespace lve

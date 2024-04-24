@@ -2,7 +2,7 @@
 #define _FE_LOG_HPP_
 // Copyright © from 2023 to current, UNKNOWN STRYKER. All Rights Reserved.
 #include <FE/core/types.hxx>
-#include <FE/core/debug.h>
+#include <FE/core/private/debug.h>
 #include <FE/core/fstream_guard.hxx>
 #include <filesystem>
 #include <fstream>
@@ -49,7 +49,7 @@ protected:
 
 public:
     logger() noexcept;
-    ~logger() noexcept {}
+    ~logger() noexcept = default;
 
     void set_root_directory(const directory_char_type* root_directory_name_p = (std::filesystem::current_path() / "Logs").c_str()) noexcept;
 

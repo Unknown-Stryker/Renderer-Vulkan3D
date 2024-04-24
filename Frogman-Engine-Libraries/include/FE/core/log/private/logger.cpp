@@ -5,7 +5,6 @@
 #include <FE/miscellaneous/misc.h>
 #include <FE/core/algorithm/string.hxx>
 #include <FE/core/clock.hpp>
-#include <FE/core/do_once.hxx>
 #include <FE/core/thread.hpp>
 #include <FE/core/log/logger.hpp>
 #include <boost/stacktrace.hpp>
@@ -34,7 +33,7 @@ logger::logger() noexcept : m_file_logger(), m_file_guard(m_file_logger)
 
 void logger::set_root_directory(const directory_char_type* root_directory_name_p) noexcept
 {
-    FE_ASSERT(root_directory_name_p == nullptr, "root_directory_name_p was nullptr.");
+    FE_ABORT_IF(root_directory_name_p == nullptr, "root_directory_name_p was nullptr.");
 
     std::filesystem::path l_directory_name = root_directory_name_p;
 
@@ -49,8 +48,8 @@ void logger::set_root_directory(const directory_char_type* root_directory_name_p
 
 void logger::mkdir(const directory_char_type* folder_name_p) noexcept
 {
-    FE_ASSERT(std::filesystem::exists(this->m_directory_buffer.c_str()) == false, "Current directory is invalid.");
-    FE_ASSERT(folder_name_p == nullptr, "folder_name_p was nullptr.");
+    FE_ABORT_IF(std::filesystem::exists(this->m_directory_buffer.c_str()) == false, "Current directory is invalid.");
+    FE_ABORT_IF(folder_name_p == nullptr, "folder_name_p was nullptr.");
 
 #ifdef _WINDOWS_X86_64_
     this->m_directory_buffer += L"\\";
@@ -70,8 +69,8 @@ void logger::mkdir(const directory_char_type* folder_name_p) noexcept
 
 void logger::cd(const directory_char_type* folder_name_p) noexcept
 {
-    FE_ASSERT(std::filesystem::exists(this->m_directory_buffer.c_str()) == false, "Current directory is invalid.");
-    FE_ASSERT(folder_name_p == nullptr, "folder_name_p was nullptr.");
+    FE_ABORT_IF(std::filesystem::exists(this->m_directory_buffer.c_str()) == false, "Current directory is invalid.");
+    FE_ABORT_IF(folder_name_p == nullptr, "folder_name_p was nullptr.");
 
     SWITCH(folder_name_p)
     {
@@ -100,7 +99,7 @@ void logger::cd(const directory_char_type* folder_name_p) noexcept
 #endif
 
         this->m_directory_buffer += folder_name_p;
-        FE_ASSERT(std::filesystem::exists(this->m_directory_buffer.c_str()) == false, "Current directory is invalid.");
+        FE_ABORT_IF(std::filesystem::exists(this->m_directory_buffer.c_str()) == false, "Current directory is invalid.");
     }
         break;
     }
@@ -108,9 +107,9 @@ void logger::cd(const directory_char_type* folder_name_p) noexcept
 
 void logger::do_log(const char* content_p, const directory_char_type* filename_p) noexcept
 {
-    FE_ASSERT(std::filesystem::exists(this->m_directory_buffer.c_str()) == false, "Current directory is invalid.");
-    FE_ASSERT(content_p == nullptr, "content_p was nullptr.");
-    FE_ASSERT(filename_p == nullptr, "filename_p was nullptr.");
+    FE_ABORT_IF(std::filesystem::exists(this->m_directory_buffer.c_str()) == false, "Current directory is invalid.");
+    FE_ABORT_IF(content_p == nullptr, "content_p was nullptr.");
+    FE_ABORT_IF(filename_p == nullptr, "filename_p was nullptr.");
 
     std::filesystem::path l_directory_name = this->m_directory_buffer.c_str();
 
@@ -118,6 +117,7 @@ void logger::do_log(const char* content_p, const directory_char_type* filename_p
 
     this->m_file_logger.open(l_directory_name);
     this->m_file_logger << content_p;
+    std::cerr << content_p;
 }
 
 void logger::__reserve() noexcept
@@ -187,6 +187,9 @@ fatal_error_log::fatal_error_log() noexcept : base_type()
 
     this->m_file_logger << "Compilation Date: " << " " << __DATE__ << " - " << __TIME__ << "\n\n";
     this->m_file_logger << "\n-------------------------------------------------- BEGIN LOG --------------------------------------------------\n\n";
+
+    std::cerr << "Compilation Date: " << " " << __DATE__ << " - " << __TIME__ << "\n\n";
+    std::cerr << "\n-------------------------------------------------- BEGIN LOG --------------------------------------------------\n\n";
 }
 
 fatal_error_log::~fatal_error_log() noexcept
@@ -218,15 +221,26 @@ void fatal_error_log::do_log(character* const message_p, character* const file_n
     );
 
     this->m_file_logger << this->m_log_buffer.data() << "\n\n\n\n\n";
+    std::cerr << this->m_log_buffer.data() << "\n\n\n\n\n";
 
 
     boost::stacktrace::stacktrace l_stack_trace_dumps;
+    std::string l_stack_trace_dumps_string = std::move(boost::stacktrace::to_string(l_stack_trace_dumps));
 
     this->m_file_logger << "\n-------------------------------------------------- BEGIN STACK TRACE RECORD --------------------------------------------------\n\n";
 
-    this->m_file_logger << boost::stacktrace::to_string(l_stack_trace_dumps).data() << '\n';
+    this->m_file_logger << l_stack_trace_dumps_string.data() << '\n';
 
     this->m_file_logger << "\n-------------------------------------------------------- END OF RECORD -------------------------------------------------------\n";
+
+
+
+
+    std::cerr << "\n-------------------------------------------------- BEGIN STACK TRACE RECORD --------------------------------------------------\n\n";
+
+    std::cerr << l_stack_trace_dumps_string.data() << '\n';
+
+    std::cerr << "\n-------------------------------------------------------- END OF RECORD -------------------------------------------------------\n";
 }
 
 
@@ -290,6 +304,9 @@ file_log::file_log() noexcept : base_type()
 
     this->m_file_logger << "Compilation Date: " << " " << __DATE__ << " - " << __TIME__ << "\n\n";
     this->m_file_logger << "\n-------------------------------------------------- BEGIN LOG --------------------------------------------------\n\n";
+
+    std::cerr << "Compilation Date: " << " " << __DATE__ << " - " << __TIME__ << "\n\n";
+    std::cerr << "\n-------------------------------------------------- BEGIN LOG --------------------------------------------------\n\n";
 }
 
 file_log::~file_log() noexcept
@@ -297,6 +314,8 @@ file_log::~file_log() noexcept
     this->m_file_logger << "\n-------------------------------------------------- END OF LOG --------------------------------------------------\n\n";
 
     this->m_file_guard.close();
+
+    std::cerr << "\n-------------------------------------------------- END OF LOG --------------------------------------------------\n\n";
 }
 
 void file_log::do_log(character* const message_p, character* const file_name_p, character* const function_name_p, uint32 line_p) noexcept
@@ -322,6 +341,9 @@ void file_log::do_log(character* const message_p, character* const file_name_p, 
     );
 
     this->m_file_logger << this->m_log_buffer.data();
+    std::cerr << this->m_log_buffer.data();
+
+    // re-calculate length
     this->m_log_buffer = this->m_log_buffer.c_str();
     std::memset(this->m_log_buffer.data(), _NULL_, this->m_log_buffer.length() * sizeof(typename buffer_type::value_type));
 }

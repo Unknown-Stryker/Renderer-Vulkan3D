@@ -177,7 +177,7 @@ _CONSTEXPR20_ void capitalize_every_first_letter_of_words(CharT* in_out_string_p
 
 
 template <typename CharT>
-_NODISCARD_ _CONSTEXPR20_ _FORCE_INLINE_ uint64 length(const CharT* const string_p) noexcept
+_NODISCARD_ _CONSTEXPR20_ _FORCE_INLINE_ uint64 length(const CharT* const string_p) noexcept // returns a string length without the null terminator
 {
     FE_STATIC_ASSERT(FE::is_char<CharT>::value == false, "CharT is not a valid character type");
     FE_ASSERT(string_p == nullptr, "${%s@0}: ${%s@1} is ${%p@2}.", TO_STRING(MEMORY_ERROR_1XX::_FATAL_ERROR_NULLPTR), TO_STRING(string_p), nullptr);
@@ -376,7 +376,7 @@ template<typename CharT>
 _CONSTEXPR20_ _FORCE_INLINE_ void concatenate(CharT* const out_string_buffer_p, _MAYBE_UNUSED_ size_t string_buffer_size_p, ::std::initializer_list<const CharT* const>&& strings_p) noexcept
 {
     FE_STATIC_ASSERT(FE::is_char<CharT>::value == false, "CharT is not a valid character type");
-    ABORT_IF(out_string_buffer_p == nullptr, "NULLPTR DETECTED: out_string_buffer_p is nullptr.");
+    FE_ABORT_IF(out_string_buffer_p == nullptr, "NULLPTR DETECTED: out_string_buffer_p is nullptr.");
 
     var::size_t l_current_begin_index = algorithm::string::length(out_string_buffer_p);
 
@@ -384,7 +384,7 @@ _CONSTEXPR20_ _FORCE_INLINE_ void concatenate(CharT* const out_string_buffer_p, 
     {
         size_t l_string_length_buffer = algorithm::string::length(strings_p.begin()[i]);
 
-        ABORT_IF(string_buffer_size_p <= l_current_begin_index, "MEMORY BOUNDARY CHECK FAILURES: the string_buffer_size_p is smaller or equal to the l_current_begin_index");
+        FE_ABORT_IF(string_buffer_size_p <= l_current_begin_index, "MEMORY BOUNDARY CHECK FAILURES: the string_buffer_size_p is smaller or equal to the l_current_begin_index");
 
         std::memcpy(out_string_buffer_p + l_current_begin_index, strings_p.begin()[i], l_string_length_buffer * sizeof(CharT));
         l_current_begin_index += l_string_length_buffer;

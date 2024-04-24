@@ -2,7 +2,7 @@
 #define _FE_CORE_ALGORITHM_UTILITY_HXX_
 // Copyright © from 2023 to current, UNKNOWN STRYKER. All Rights Reserved.
 #include <FE/core/types.hxx>
-#include <FE/core/debug.h>
+#include <FE/core/private/debug.h>
 #include <FE/core/private/strlen.h>
 #include <FE/core/type_traits.hxx>
 #include <bitset>
@@ -143,7 +143,7 @@ _CONSTEXPR20_ _FORCE_INLINE_ boolean string_to_boolean(const CharT* const string
             ++l_s_true_pointer;
             ++l_string_pointer;
         }
-        ABORT_IF((l_string_pointer - string_p) != 4, "ERROR: The calculation cannot be done properly. The input string is not \"true\".");
+        FE_ABORT_IF((l_string_pointer - string_p) != 4, "ERROR: The calculation cannot be done properly. The input string is not \"true\".");
         return true;
 
     case 'f':
@@ -152,11 +152,11 @@ _CONSTEXPR20_ _FORCE_INLINE_ boolean string_to_boolean(const CharT* const string
             ++l_s_false_pointer;
             ++l_string_pointer;
         }
-        ABORT_IF((l_string_pointer - string_p) != 5, "ERROR: The calculation cannot be done properly. The input string is not \"false\".");
+        FE_ABORT_IF((l_string_pointer - string_p) != 5, "ERROR: The calculation cannot be done properly. The input string is not \"false\".");
         return false;
 
     default: _UNLIKELY_
-        ABORT_IF(true, "ERROR: The calculation cannot be done properly. The input string is neither \"true\" nor \"false\".");
+        FE_ABORT_IF(true, "ERROR: The calculation cannot be done properly. The input string is neither \"true\" nor \"false\".");
         break;
     }
 }
@@ -231,8 +231,8 @@ template<typename CharT>
 _CONSTEXPR20_ _FORCE_INLINE_ void int_to_string(CharT* const string_out_p, _MAYBE_UNUSED_ length_t input_string_capacity_p, var::int64 value_p) noexcept
 {
     FE_STATIC_ASSERT(FE::is_char<CharT>::value == false, "an illegal type assigned to the template argument CharT");
-    ABORT_IF(string_out_p == nullptr, "NULLPTR DETECTED: string_out_p is nullptr.");
-    ABORT_IF(value_p == FE::min_value<var::int64>, "NaCN ERROR: value_p is not a calculatable number");
+    FE_ABORT_IF(string_out_p == nullptr, "NULLPTR DETECTED: string_out_p is nullptr.");
+    FE_ABORT_IF(value_p == FE::min_value<var::int64>, "NaCN ERROR: value_p is not a calculatable number");
 
     var::int8 l_integral_digits = count_integral_digit_length<var::int64>(value_p);
     var::boolean l_is_negative = false;
@@ -250,7 +250,7 @@ _CONSTEXPR20_ _FORCE_INLINE_ void int_to_string(CharT* const string_out_p, _MAYB
         return;
     }
 
-    ABORT_IF(input_string_capacity_p <= l_integral_digits, "MEMORY BOUNDRY CHECK FAILURE: the digit length of an integer exceeds the output string buffer capacity");
+    FE_ABORT_IF(input_string_capacity_p <= l_integral_digits, "MEMORY BOUNDRY CHECK FAILURE: the digit length of an integer exceeds the output string buffer capacity");
 
     var::int8 l_idx = l_integral_digits - 1;
     while (value_p > 0)
@@ -273,7 +273,7 @@ template<typename CharT>
 _CONSTEXPR20_ _FORCE_INLINE_ void uint_to_string(CharT* const string_out_p, _MAYBE_UNUSED_ length_t input_string_capacity_p, var::uint64 value_p) noexcept
 {
     FE_STATIC_ASSERT(FE::is_char<CharT>::value == false, "an illegal type of value_p assigned to the template argument CharT");
-    ABORT_IF(string_out_p == nullptr, "NULLPTR DETECTED: string_out_p is nullptr.");
+    FE_ABORT_IF(string_out_p == nullptr, "NULLPTR DETECTED: string_out_p is nullptr.");
 
     var::int8 l_integral_digits = count_integral_digit_length<var::uint64>(value_p);
     var::boolean l_is_negative = false;
@@ -285,7 +285,7 @@ _CONSTEXPR20_ _FORCE_INLINE_ void uint_to_string(CharT* const string_out_p, _MAY
         return;
     }
 
-    ABORT_IF(input_string_capacity_p <= l_integral_digits, "MEMORY BOUNDRY CHECK FAILURE: the digit length of an integer exceeds the output string buffer capacity");
+    FE_ABORT_IF(input_string_capacity_p <= l_integral_digits, "MEMORY BOUNDRY CHECK FAILURE: the digit length of an integer exceeds the output string buffer capacity");
 
     var::int8 l_idx = l_integral_digits - 1;
     while (value_p > 0)
@@ -309,7 +309,7 @@ _CONSTEXPR20_ _FORCE_INLINE_ void float_to_string(CharT* const string_out_p, len
 {
     FE_STATIC_ASSERT(FE::is_char<CharT>::value == false, "an illegal type assigned to the template argument CharT");
 
-    ABORT_IF(string_out_p == nullptr, "NULLPTR DETECTED: string_out_p is nullptr.");
+    FE_ABORT_IF(string_out_p == nullptr, "NULLPTR DETECTED: string_out_p is nullptr.");
 
     int_to_string<CharT>(string_out_p, input_string_capacity_p, static_cast<var::int64>(value_p));
 
@@ -323,7 +323,7 @@ _CONSTEXPR20_ _FORCE_INLINE_ void float_to_string(CharT* const string_out_p, len
         l_floating_point *= 10.0f;
     }
 
-    ABORT_IF(input_string_capacity_p <= (count_integral_digit_length<var::int64>(l_floating_point) + l_integral_part_string_length), "MEMORY BOUNDRY CHECK FAILURE: the digit length of the integral part exceeds the output string buffer capacity");
+    FE_ABORT_IF(input_string_capacity_p <= (count_integral_digit_length<var::int64>(l_floating_point) + l_integral_part_string_length), "MEMORY BOUNDRY CHECK FAILURE: the digit length of the integral part exceeds the output string buffer capacity");
 
     int_to_string<CharT>(string_out_p + l_integral_part_string_length, input_string_capacity_p, static_cast<var::int64>(l_floating_point));
 }
@@ -348,7 +348,7 @@ _CONSTEXPR20_ _FORCE_INLINE_ void any_object_binary_representation(CharT* const 
     FE_STATIC_ASSERT(FE::is_char<CharT>::value == false, "an illegal type assigned to the template argument CharT");
 
     constexpr count_t l_required_bit_count = (sizeof(T) * 8) + sizeof(T);
-    ABORT_IF(dest_buffer_capacity_p < l_required_bit_count, "ERROR: The input buffer capacity is insufficient to store the binary representation of the subject");
+    FE_ABORT_IF(dest_buffer_capacity_p < l_required_bit_count, "ERROR: The input buffer capacity is insufficient to store the binary representation of the subject");
     CharT l_buffer[l_required_bit_count] = { 0 };
     CharT* l_buffer_pointer = static_cast<CharT*>(l_buffer);
 
@@ -532,9 +532,9 @@ _CONSTEXPR20_ _FORCE_INLINE_ void any_to_string(CharT* const dest_buffer_p, capa
 template<class Iterator>
 _FORCE_INLINE_ void fill(Iterator first_p, Iterator last_p, const typename Iterator::value_type& data_p) noexcept
 {
-    ABORT_IF(first_p == nullptr, "_FATAL_ERROR_NULLPTR: first_p is nullptr.");
-    ABORT_IF(last_p == nullptr, "_FATAL_ERROR_NULLPTR: last_p is nullptr.");
-    ABORT_IF(first_p >= last_p, "_FATAL_ERROR_ACCESS_VIOLATION: first_p cannot be greater than or equal to last_p.");
+    FE_ABORT_IF(first_p == nullptr, "_FATAL_ERROR_NULLPTR: first_p is nullptr.");
+    FE_ABORT_IF(last_p == nullptr, "_FATAL_ERROR_NULLPTR: last_p is nullptr.");
+    FE_ABORT_IF(first_p >= last_p, "_FATAL_ERROR_ACCESS_VIOLATION: first_p cannot be greater than or equal to last_p.");
 
     while (first_p != last_p) _LIKELY_
     {

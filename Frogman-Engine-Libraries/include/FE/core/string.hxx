@@ -153,7 +153,7 @@ public:
     basic_string(std::nullptr_t) noexcept = delete;
 
     template<class InputIterator>
-    _CONSTEXPR20_ basic_string(InputIterator first_p, InputIterator last_p) noexcept : m_smart_string(FE::make_exclusive<CharT[], Allocator>(size_t{ static_cast<size_t>(last_p - first_p)})), m_length(m_smart_string.capacity() - _NULL_ESCAPE_SIZE_)
+    _CONSTEXPR20_ basic_string(InputIterator first_p, InputIterator last_p) noexcept : m_smart_string(FE::make_exclusive<CharT[], Allocator>(static_cast<size_t>(last_p - first_p) + _NULL_ESCAPE_SIZE_)), m_length(m_smart_string.capacity() - _NULL_ESCAPE_SIZE_)
     {
         FE_STATIC_ASSERT(std::is_class<InputIterator>::value == false, "Static Assertion Failure: The template argument InputIterator must be a class or a struct type.");
         FE_STATIC_ASSERT((std::is_same<typename std::remove_const<typename InputIterator::value_type>::type, typename std::remove_const<value_type>::type>::value == false), "Static Assertion Failure: InputIterator's value_type has to be the same as basic_string's value_type.");
@@ -215,7 +215,7 @@ public:
 
         if (this->m_smart_string.capacity() < other_p.m_length)
         {
-            this->reserve(other_p.m_length + _NULL_ESCAPE_SIZE_);
+            this->reserve(other_p.m_length);
         }
 
         Traits::copy<allocator_type::is_address_aligned, static_cast<ADDRESS>(allocator_type::is_address_aligned)>(this->m_smart_string.get(), other_p.m_smart_string.get(), other_p.m_length);
@@ -269,7 +269,7 @@ public:
 
         if (this->m_smart_string.capacity() < l_initializer_list_size)
         {
-            this->reserve(l_initializer_list_size + _NULL_ESCAPE_SIZE_);
+            this->reserve(l_initializer_list_size);
         }
 
         Traits::copy(this->m_smart_string.get(), const_cast<CharT*>(initializer_list_p.begin()), l_initializer_list_size);
@@ -286,7 +286,7 @@ public:
 
         if (this->m_smart_string.capacity() < string_view_p.length())
         {
-            this->reserve(string_view_p.length() + _NULL_ESCAPE_SIZE_);
+            this->reserve(string_view_p.length());
         }
 
         Traits::copy(this->m_smart_string.get(), string_view_p.data(), string_view_p.length());
@@ -481,16 +481,17 @@ public:
             return;
         }
 
-        this->m_smart_string.reset(FE::resize_to{ new_capacity_p });
+        this->m_smart_string.reset(FE::resize_to{ new_capacity_p + _NULL_ESCAPE_SIZE_});
     }
 
     _CONSTEXPR20_ void extend(const length_type extra_capacity_p) noexcept
     {
         FE_ASSERT(extra_capacity_p == 0, "${%s@0}: Unable to extend(). ${%s@1} was zero.", TO_STRING(MEMORY_ERROR_1XX::_FATAL_ERROR_INVALID_SIZE), TO_STRING(extra_capacity_p));
 
-        this->m_smart_string.reset(FE::resize_to{ extra_capacity_p + this->m_smart_string.capacity() });
+        this->m_smart_string.reset(FE::resize_to{ extra_capacity_p + this->m_smart_string.capacity() + _NULL_ESCAPE_SIZE_ });
     }
     
+    // returns the current capacity of the string
     _NODISCARD_ _FORCE_INLINE_ length_type capacity() const noexcept { return this->m_smart_string.capacity(); }
     
     _CONSTEXPR20_ void shrink_to_fit() noexcept

@@ -1,4 +1,5 @@
 #include <FE/renderer/device.hpp>
+#include <FE/renderer/window.hpp>
 
 // std headers
 #include <cstring>
@@ -13,7 +14,7 @@ BEGIN_NAMESPACE(FE::renderer)
 
 
 // local callback functions
-static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(_MAYBE_UNUSED_ VkDebugUtilsMessageSeverityFlagBitsEXT message_severity_p,
+static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(_MAYBE_UNUSED_ VkDebugUtilsMessageSeverityFlagBitsEXT message_severity_p,
                                                     _MAYBE_UNUSED_ VkDebugUtilsMessageTypeFlagsEXT message_type_p,
                                                     const VkDebugUtilsMessengerCallbackDataEXT* callback_data_p,
                                                     _MAYBE_UNUSED_ void* user_data_p) 
@@ -52,7 +53,7 @@ void destroy_debug_utils_messenger_EXT(VkInstance vulkan_instance_p, VkDebugUtil
 device::device(FE::renderer::window& window_p) : m_window{ window_p } 
 {
     __create_instance();
-    __setup_debug_nessenger();
+    __setup_debug_messenger();
     __create_surface();
     __pick_physical_device();
     __create_logical_device();
@@ -75,17 +76,19 @@ device::~device()
 
 void device::__create_instance() 
 {
-    FE_ASSERT(_are_validation_layers_enabled && !__check_validation_layer_support(), "validation layers requested, but not available!");
+    FE_EXIT(_are_validation_layers_enabled && !__check_validation_layer_support(), RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "validation layers requested, but not available!");
 
-    VkApplicationInfo l_app_info = {};
+    VkApplicationInfo l_app_info{};
     l_app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     l_app_info.pApplicationName = "Frogman Engine Renderer Test App";
-    l_app_info.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
+    l_app_info.applicationVersion = VK_MAKE_API_VERSION(0, 0, 0, 1);
+
     l_app_info.pEngineName = "Frogman Engine";
-    l_app_info.engineVersion = VK_MAKE_VERSION(0, 0, 1);
+    l_app_info.engineVersion = VK_MAKE_API_VERSION(0, 0, 0, 1);
     l_app_info.apiVersion = VK_API_VERSION_1_3;
 
-    VkInstanceCreateInfo l_create_info = {};
+
+    VkInstanceCreateInfo l_create_info{};
     l_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     l_create_info.pApplicationInfo = &l_app_info;
 
@@ -108,7 +111,7 @@ void device::__create_instance()
         l_create_info.pNext = nullptr;
     }
 
-    FE_ASSERT(vkCreateInstance(&l_create_info, nullptr, &m_vulkan_instance) != VK_SUCCESS, "failed to create m_vulkan_instance!");
+    FE_EXIT(vkCreateInstance(&l_create_info, nullptr, &m_vulkan_instance) != VK_SUCCESS, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to create m_vulkan_instance!");
 
     __has_GLFW_required_instance_extensions();
 }
@@ -118,7 +121,7 @@ void device::__pick_physical_device()
     var::uint32 l_device_count = 0;
     vkEnumeratePhysicalDevices(this->m_vulkan_instance, &l_device_count, nullptr);
     
-    FE_ASSERT(l_device_count == 0, "failed to find GPUs with Vulkan support!"); 
+    FE_EXIT(l_device_count == 0, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to find GPUs with Vulkan support!");
     std::cout << "Device count: " << l_device_count << std::endl;
 
     std::vector<VkPhysicalDevice> devices(l_device_count);
@@ -133,7 +136,7 @@ void device::__pick_physical_device()
         }
     }
     
-    FE_ASSERT(m_physical_device == VK_NULL_HANDLE, "failed to find a suitable GPU!");
+    FE_EXIT(m_physical_device == VK_NULL_HANDLE, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to find a suitable GPU!");
     
     vkGetPhysicalDeviceProperties(this->m_physical_device, &_properties);
     std::cout << "physical device: " << this->_properties.deviceName << std::endl;
@@ -181,7 +184,7 @@ void device::__create_logical_device()
         l_create_info.enabledLayerCount = 0;
     }
     
-    FE_ASSERT(vkCreateDevice(this->m_physical_device, &l_create_info, nullptr, &this->m_device) != VK_SUCCESS, "failed to create logical device!")
+    FE_EXIT(vkCreateDevice(this->m_physical_device, &l_create_info, nullptr, &this->m_device) != VK_SUCCESS, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to create logical device!")
     
     vkGetDeviceQueue(this->m_device, l_indices._graphics_family, 0, &this->m_graphics_queue);
     vkGetDeviceQueue(this->m_device, l_indices._present_family, 0, &this->m_present_queue);
@@ -197,10 +200,10 @@ void device::__create_command_pool()
       l_pool_info.flags =
           VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     
-      FE_ASSERT(vkCreateCommandPool(m_device, &l_pool_info, nullptr, &m_command_pool) != VK_SUCCESS, "failed to create command pool!");
+      FE_EXIT(vkCreateCommandPool(m_device, &l_pool_info, nullptr, &m_command_pool) != VK_SUCCESS, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to create command pool!");
 }
 
-void device::__create_surface() { /*this->m_window.create_window_surface(this->m_vulkan_instance, &this->m_surface);*/ }
+void device::__create_surface() { this->m_window.create_window_surface(this->m_vulkan_instance, &this->m_surface); }
 
 var::boolean device::__is_device_suitable(VkPhysicalDevice device_p) 
 {
@@ -231,20 +234,22 @@ void device::__populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateI
     create_info_p.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    create_info_p.pfnUserCallback = debugCallback;
+    create_info_p.pfnUserCallback = debug_callback;
     create_info_p.pUserData = nullptr;  // Optional
 }
 
-void device::__setup_debug_nessenger() 
+void device::__setup_debug_messenger() 
 {
-    if (!_are_validation_layers_enabled) return;
+    if (_are_validation_layers_enabled == false) return;
 
     VkDebugUtilsMessengerCreateInfoEXT l_create_info;
     __populate_debug_messenger_create_info(l_create_info);
 
-    FE_ASSERT(create_debug_utils_messenger_EXT(m_vulkan_instance, &l_create_info, nullptr, &m_debug_messenger) != VK_SUCCESS, "failed to set up debug messenger!");
+    FE_EXIT(create_debug_utils_messenger_EXT(m_vulkan_instance, &l_create_info, nullptr, &m_debug_messenger) != VK_SUCCESS, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to set up debug messenger!");
 }
 
+#pragma warning(push)
+#pragma warning(disable: 4702)
 var::boolean device::__check_validation_layer_support() 
 {
     var::uint32 l_layer_count;
@@ -253,27 +258,19 @@ var::boolean device::__check_validation_layer_support()
     std::vector<VkLayerProperties> l_available_layers(l_layer_count);
     vkEnumerateInstanceLayerProperties(&l_layer_count, l_available_layers.data());
     
-    for (const char *layer_name : this->m_validation_layers) 
+    const char* l_layer_name = this->m_validation_layers.front();
+    
+    for (var::size_t i = 0; i < l_layer_count; ++i)
     {
-        var::boolean l_is_layer_found = false;
-        
-        for (const auto& layer_properties : l_available_layers) 
+        if (strcmp(l_layer_name, l_available_layers[i].layerName) == 0)
         {
-            if (strcmp(layer_name, layer_properties.layerName) == 0) 
-            {
-                l_is_layer_found = true;
-                break;
-            }
-        }
-        
-        if (!l_is_layer_found) 
-        {
-            return false;
+            return true;
         }
     }
-    
-    return true;
+
+    return false;
 }
+#pragma warning(pop)
 
 std::vector<const char *> device::__get_required_extensions() 
 {
@@ -311,7 +308,7 @@ void device::__has_GLFW_required_instance_extensions()
     for (const auto &required : l_required_extensions) 
     {
         std::cout << "\t" << required << std::endl;
-        FE_ASSERT(l_available.find(required) == l_available.end(), "Missing required glfw extension");
+        FE_EXIT(l_available.find(required) == l_available.end(), RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "Missing required glfw extension");
     }
 }
 
@@ -418,7 +415,7 @@ VkFormat device::find_supported_format(const std::vector<VkFormat>& candidates_p
     }
 
 
-    FE_EXIT(true, _FAILED_, "failed to find supported format!");
+    FE_EXIT(true, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to find supported format!");
 }
 
 var::uint32 device::find_memory_type(uint32 type_filter_p, VkMemoryPropertyFlags properties_p) 
@@ -435,7 +432,7 @@ var::uint32 device::find_memory_type(uint32 type_filter_p, VkMemoryPropertyFlags
         }
     }
     
-    FE_EXIT(true, _FAILED_, "failed to find suitable memory type!");
+    FE_EXIT(true, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to find suitable memory type!");
 }
 
 void device::create_buffer(VkDeviceSize size_p,
@@ -450,7 +447,7 @@ void device::create_buffer(VkDeviceSize size_p,
     l_buffer_info.usage = usage_p;
     l_buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     
-    FE_ASSERT(vkCreateBuffer(this->m_device, &l_buffer_info, nullptr, &buffer_p) != VK_SUCCESS, "failed to create vertex buffer!");
+    FE_EXIT(vkCreateBuffer(this->m_device, &l_buffer_info, nullptr, &buffer_p) != VK_SUCCESS, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN,"failed to create vertex buffer!");
     
     VkMemoryRequirements l_mem_requirements;
     vkGetBufferMemoryRequirements(this->m_device, buffer_p, &l_mem_requirements);
@@ -460,7 +457,7 @@ void device::create_buffer(VkDeviceSize size_p,
     l_alloc_info.allocationSize = l_mem_requirements.size;
     l_alloc_info.memoryTypeIndex = find_memory_type(l_mem_requirements.memoryTypeBits, properties_p);
     
-    FE_ASSERT(vkAllocateMemory(this->m_device, &l_alloc_info, nullptr, &buffer_memory_p) != VK_SUCCESS, "failed to allocate vertex buffer memory!");
+    FE_EXIT(vkAllocateMemory(this->m_device, &l_alloc_info, nullptr, &buffer_memory_p) != VK_SUCCESS, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to allocate vertex buffer memory!");
     vkBindBufferMemory(this->m_device, buffer_p, buffer_memory_p, 0);
 }
 
@@ -543,7 +540,7 @@ void device::create_image_with_info(const VkImageCreateInfo& image_info_p,
                                     VkImage& image_p,
                                     VkDeviceMemory& image_memory_p) 
 {
-    FE_ASSERT(vkCreateImage(this->m_device, &image_info_p, nullptr, &image_p) != VK_SUCCESS, "failed to create image!");
+    FE_EXIT(vkCreateImage(this->m_device, &image_info_p, nullptr, &image_p) != VK_SUCCESS, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to create image!");
     
     VkMemoryRequirements l_mem_requirements;
     vkGetImageMemoryRequirements(this->m_device, image_p, &l_mem_requirements);
@@ -553,8 +550,8 @@ void device::create_image_with_info(const VkImageCreateInfo& image_info_p,
     l_alloc_info.allocationSize = l_mem_requirements.size;
     l_alloc_info.memoryTypeIndex = find_memory_type(l_mem_requirements.memoryTypeBits, properties_p);
     
-    FE_ASSERT(vkAllocateMemory(this->m_device, &l_alloc_info, nullptr, &image_memory_p) != VK_SUCCESS, "failed to allocate image memory!");
-    FE_ASSERT(vkBindImageMemory(this->m_device, image_p, image_memory_p, 0) != VK_SUCCESS, "failed to bind image memory!");
+    FE_EXIT(vkAllocateMemory(this->m_device, &l_alloc_info, nullptr, &image_memory_p) != VK_SUCCESS, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to allocate image memory!");
+    FE_EXIT(vkBindImageMemory(this->m_device, image_p, image_memory_p, 0) != VK_SUCCESS, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "failed to bind image memory!");
 }
 
 END_NAMESPACE

@@ -25,7 +25,7 @@ BEGIN_NAMESPACE(FE::log)
 // ${%p at n} - hexadecimal 64bit pointer
 void format_string(char* out_buffer_pointer_p, const char* string_format_p, _MAYBE_UNUSED_ size_t buffer_size_p, const void** arguments_pointer_p, _MAYBE_UNUSED_ count_t arguments_count_p) noexcept
 {
-    ABORT_IF(FE::internal::strlen(string_format_p) > buffer_size_p, "ERROR: buffer overflowed!");
+    FE_ABORT_IF(FE::internal::strlen(string_format_p) > buffer_size_p, "ERROR: buffer overflowed!");
     thread_local static char tl_s_buffer[_16_BYTES_BIT_COUNT_] = { "\0" };
 
     while (*string_format_p != '\0')
@@ -39,13 +39,13 @@ void format_string(char* out_buffer_pointer_p, const char* string_format_p, _MAY
             {
                 constexpr static index_t _JUMP_TO_FORMAT_SPECIFIER_VALUE_PREFIX_ = 5;
                 l_index = algorithm::utility::string_to_uint<var::uint32>(string_format_p + _JUMP_TO_FORMAT_SPECIFIER_VALUE_PREFIX_);
-                ABORT_IF(string_format_p[_JUMP_TO_FORMAT_SPECIFIER_VALUE_PREFIX_ + l_index._digit_length] != '}', "ERROR: an illegal string format detected! } is missing.");
+                FE_ABORT_IF(string_format_p[_JUMP_TO_FORMAT_SPECIFIER_VALUE_PREFIX_ + l_index._digit_length] != '}', "ERROR: an illegal string format detected! } is missing.");
             }
             else if (string_format_p[5] == '@')
             {
                 constexpr static index_t _JUMP_TO_FORMAT_SPECIFIER_VALUE_PREFIX_ = 6;
                 l_index = algorithm::utility::string_to_uint<var::uint32>(string_format_p + _JUMP_TO_FORMAT_SPECIFIER_VALUE_PREFIX_);
-                ABORT_IF(string_format_p[_JUMP_TO_FORMAT_SPECIFIER_VALUE_PREFIX_ + l_index._digit_length] != '}', "ERROR: an illegal string format detected! } is missing.");
+                FE_ABORT_IF(string_format_p[_JUMP_TO_FORMAT_SPECIFIER_VALUE_PREFIX_ + l_index._digit_length] != '}', "ERROR: an illegal string format detected! } is missing.");
             }
             else
             {
@@ -53,7 +53,7 @@ void format_string(char* out_buffer_pointer_p, const char* string_format_p, _MAY
             }
          
 
-            ABORT_IF(l_index._value >= arguments_count_p, "ERROR: Detected an invalid index token. The @n value is too large.");
+            FE_ABORT_IF(l_index._value >= arguments_count_p, "ERROR: Detected an invalid index token. The @n value is too large.");
 
 
             switch (string_format_p[_FORMAT_SPECIFIER_VALUE_PREFIX_])
@@ -112,7 +112,7 @@ void format_string(char* out_buffer_pointer_p, const char* string_format_p, _MAY
                 }
 
                 default:
-                    ABORT_IF(true, "ERROR: an incorrect type format option detected! The option must be %ld (int64), %lu (uint64), or %lf (float64).");
+                    FE_ABORT_IF(true, "ERROR: an incorrect type format option detected! The option must be %ld (int64), %lu (uint64), or %lf (float64).");
                     return;
                 }
 
@@ -162,7 +162,7 @@ void format_string(char* out_buffer_pointer_p, const char* string_format_p, _MAY
             break;
 
             default: _UNLIKELY_
-                ABORT_IF(true, "ERROR: an incorrect type format option detected!");
+                FE_ABORT_IF(true, "ERROR: an incorrect type format option detected!");
                 return;
             }
         }

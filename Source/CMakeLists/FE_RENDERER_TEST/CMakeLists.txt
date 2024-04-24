@@ -20,6 +20,7 @@ ADD_EXECUTABLE(	${FE_RENDERER_TEST}
 				${_SHADERS_}
 				${_SHADER_COMPILER_SCRIPT_}
 
+				${CMAKE_CURRENT_SOURCE_DIR}/../../FE/renderer/settings.h
 				${CMAKE_CURRENT_SOURCE_DIR}/../../FE/renderer/window.hpp
 				${CMAKE_CURRENT_SOURCE_DIR}/../../FE/renderer/private/window.cpp
 				${CMAKE_CURRENT_SOURCE_DIR}/../../FE/renderer/pipeline.hpp
