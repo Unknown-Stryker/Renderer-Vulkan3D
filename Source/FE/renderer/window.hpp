@@ -23,6 +23,9 @@ class window
 	GLFWwindow* m_window;
 	FE::string m_title;
 
+	uint32 m_width;
+	uint32 m_height;
+
 public:
 	window(uint32 width_p, uint32 height_p, const char* title_p) noexcept;
 	~window() noexcept;
@@ -37,16 +40,12 @@ public:
 		FE_EXIT(l_vk_error_code != VK_SUCCESS, l_vk_error_code, "Failed to create window surface.");
 	}
 
-
-	uint32 _width;
-	uint32 _height;
-
+	_FORCE_INLINE_ VkExtent2D get_window_extent() const noexcept { return { this->m_width, this->m_height }; }
 
 	window(const window&) = delete;
 	window(window&&) = delete;
 	window& operator=(const window&) = delete;
 	window& operator=(window&&) = delete;
-
 };
 
 

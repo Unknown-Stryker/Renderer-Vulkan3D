@@ -214,8 +214,8 @@ var::boolean device::__is_device_suitable(VkPhysicalDevice device_p)
     var::boolean l_swap_chain_adequate = false;
     if (l_extensions_supported) 
     {
-        swap_chain_support_details l_swap_chain_support = __query_swap_chain_support(device_p);
-        l_swap_chain_adequate = !l_swap_chain_support._formats.empty() && !l_swap_chain_support._present_modes.empty();
+        FE::unique_ptr<swap_chain_support_details> l_swap_chain_support = std::move(does_this_physical_device_support_swap_chain(device_p));
+        l_swap_chain_adequate = !l_swap_chain_support->_formats.empty() && !l_swap_chain_support->_present_modes.empty();
     }
     
     VkPhysicalDeviceFeatures l_supported_features;
@@ -285,7 +285,7 @@ std::vector<const char *> device::__get_required_extensions()
         l_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
     
-    return l_extensions;
+    return std::move(l_extensions);
 }
 
 void device::__has_GLFW_required_instance_extensions() 
@@ -372,29 +372,54 @@ queue_family_indices device::__find_queue_families(VkPhysicalDevice device_p)
     return l_indices;
 }
 
-swap_chain_support_details device::__query_swap_chain_support(VkPhysicalDevice device_p) 
+FE::unique_ptr<swap_chain_support_details> device::get_swap_chain_support()
 {
-    swap_chain_support_details l_details;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device_p, this->m_surface, &l_details._capabilities);
+    FE::unique_ptr<swap_chain_support_details> l_details = FE::make_unique<swap_chain_support_details>();
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(this->m_physical_device, this->m_surface, &l_details->_capabilities);
 
     var::uint32 l_format_count;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device_p, this->m_surface, &l_format_count, nullptr);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(this->m_physical_device, this->m_surface, &l_format_count, nullptr);
 
     if (l_format_count != 0) 
     {
-        l_details._formats.resize(l_format_count);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device_p, this->m_surface, &l_format_count, l_details._formats.data());
+        l_details->_formats.resize(l_format_count);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(this->m_physical_device, this->m_surface, &l_format_count, l_details->_formats.data());
+    }
+
+    var::uint32 l_present_mode_count;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(this->m_physical_device, this->m_surface, &l_present_mode_count, nullptr);
+
+    if (l_present_mode_count != 0) 
+    {
+        l_details->_present_modes.resize(l_present_mode_count);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(this->m_physical_device, m_surface, &l_present_mode_count, l_details->_present_modes.data());
+    }
+    return std::move(l_details);
+}
+
+FE::unique_ptr<swap_chain_support_details> device::does_this_physical_device_support_swap_chain(VkPhysicalDevice device_p)
+{
+    FE::unique_ptr<swap_chain_support_details> l_details = FE::make_unique<swap_chain_support_details>();
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device_p, this->m_surface, &l_details->_capabilities);
+    
+    var::uint32 l_format_count;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device_p, this->m_surface, &l_format_count, nullptr);
+
+    if (l_format_count != 0)
+    {
+        l_details->_formats.resize(l_format_count);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device_p, this->m_surface, &l_format_count, l_details->_formats.data());
     }
 
     var::uint32 l_present_mode_count;
     vkGetPhysicalDeviceSurfacePresentModesKHR(device_p, this->m_surface, &l_present_mode_count, nullptr);
 
-    if (l_present_mode_count != 0) 
+    if (l_present_mode_count != 0)
     {
-        l_details._present_modes.resize(l_present_mode_count);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device_p, m_surface, &l_present_mode_count, l_details._present_modes.data());
+        l_details->_present_modes.resize(l_present_mode_count);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device_p, m_surface, &l_present_mode_count, l_details->_present_modes.data());
     }
-    return l_details;
+    return std::move(l_details);
 }
 
 VkFormat device::find_supported_format(const std::vector<VkFormat>& candidates_p, VkImageTiling tiling_p, VkFormatFeatureFlags features_p) 

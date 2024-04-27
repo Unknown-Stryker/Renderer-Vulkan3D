@@ -29,7 +29,7 @@ class vulkan_renderer final : public FE::framework::application
 
 
 public:
-	vulkan_renderer() noexcept : m_window(800, 800, "Vulkan Renderer"), m_device(m_window), m_pipeline(m_device, FE::renderer::pipeline::default_pipeline_config_info(m_window._width, m_window._height))
+	vulkan_renderer() noexcept : m_window(800, 800, "Vulkan Renderer"), m_device(m_window), m_pipeline(m_device, std::move(FE::renderer::pipeline::default_pipeline_config_info(m_window.get_window_extent().width, m_window.get_window_extent().height)))
 	{
 		using namespace FE;
 

@@ -1,7 +1,11 @@
 #ifndef _FE_RENDERER_SETTINGS_H_
 #define _FE_RENDERER_SETTINGS_H_
 #pragma warning(disable: 4819)
+#pragma warning(disable: 26479) // std::move() has to be called to reduce unnecessary copies and memory allocations.
 #include <FE/core/prerequisites.h>
+#ifndef _ENABLE_EXIT_
+#define _ENABLE_EXIT_
+#endif
 
 
 /*

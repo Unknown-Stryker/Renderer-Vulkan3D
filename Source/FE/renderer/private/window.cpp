@@ -7,7 +7,7 @@
 BEGIN_NAMESPACE(FE::renderer)
 
 
-window::window(uint32 width_p, uint32 height_p, const char* title_p) noexcept : _width(width_p), _height(height_p), m_window(), m_title(title_p)
+window::window(uint32 width_p, uint32 height_p, const char* title_p) noexcept : m_width(width_p), m_height(height_p), m_window(), m_title(title_p)
 {
 	FE_ASSERT(width_p == 0, "width cannot be zero.");
 	FE_ASSERT(height_p == 0, "height cannot be zero.");
@@ -17,7 +17,7 @@ window::window(uint32 width_p, uint32 height_p, const char* title_p) noexcept : 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);	
 
-	this->m_window = glfwCreateWindow(this->_width, this->_height, this->m_title.c_str(), nullptr, nullptr);
+	this->m_window = glfwCreateWindow(this->m_width, this->m_height, this->m_title.c_str(), nullptr, nullptr);
 	FE_EXIT(this->m_window == nullptr, RENDERER_ERROR_TYPE::ERROR_FROM_GLFW, "Failed to create a window.");
 }
 

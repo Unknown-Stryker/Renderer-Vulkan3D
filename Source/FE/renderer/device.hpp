@@ -3,6 +3,9 @@
 #include <FE/core/prerequisites.h>
 #include <FE/renderer/settings.h>
 
+// FE
+#include <FE/core/smart_pointers/unique_ptr.hxx>
+
 // std
 #include <string>
 #include <vector>
@@ -72,9 +75,10 @@ true;
     _FORCE_INLINE_ VkQueue get_graphics_queue() noexcept { return this->m_graphics_queue; }
     _FORCE_INLINE_ VkQueue get_present_queue() noexcept { return this->m_present_queue; }
     
-    _FORCE_INLINE_ swap_chain_support_details get_swap_chain_support() { return __query_swap_chain_support(this->m_physical_device); }
+    FE::unique_ptr<swap_chain_support_details> get_swap_chain_support();
+    FE::unique_ptr<swap_chain_support_details> does_this_physical_device_support_swap_chain(VkPhysicalDevice device_p);
 
-    uint32_t find_memory_type(uint32 type_filter_p, VkMemoryPropertyFlags properties_p);
+    var::uint32 find_memory_type(uint32 type_filter_p, VkMemoryPropertyFlags properties_p);
 
     _FORCE_INLINE_ queue_family_indices find_physical_queue_families() { return __find_queue_families(this->m_physical_device); }
 
@@ -111,7 +115,6 @@ private:
     void __populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateInfoEXT& create_info_p);
     void __has_GLFW_required_instance_extensions();
     var::boolean __check_device_extension_support(VkPhysicalDevice device_p);
-    swap_chain_support_details __query_swap_chain_support(VkPhysicalDevice device_p);
 };
 
 }  // namespace lve
