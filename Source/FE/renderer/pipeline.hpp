@@ -45,15 +45,16 @@ class pipeline
 	VkPipeline m_graphics_pipeline;
 	VkShaderModule m_vert_shader_module;
 	VkShaderModule m_frag_shader_module;
-	FE::unique_ptr<pipeline_config_info> m_pipeline_config_info;
+	FE::owner_ptr<pipeline_config_info> m_pipeline_config_info;
 
 public:
-	pipeline(device& device_p, FE::unique_ptr<pipeline_config_info> pipeline_config_info_p) noexcept;
+	pipeline(device& device_p, FE::owner_ptr<pipeline_config_info> pipeline_config_info_p) noexcept;
 	~pipeline() noexcept = default;
-	void create_pipeline(const char* const vert_file_path_p, const char* const frag_file_path_p) noexcept;
+	void create_pipeline(const char* const vert_file_path_p, const char* const frag_file_path_p, FE::safe_ptr<pipeline_config_info> config_info_p) noexcept;
 	void destroy_pipeline() noexcept;
 	void create_shader_module(const FE::string& code_p, VkShaderModule* const shader_module_p) noexcept;
-	static FE::unique_ptr<pipeline_config_info> default_pipeline_config_info(uint32 width_p, uint32 height_p) noexcept;
+	FE::safe_ptr<pipeline_config_info> get_pipeline_config_info() noexcept { return this->m_pipeline_config_info; };
+	static FE::owner_ptr<pipeline_config_info> default_pipeline_config_info(uint32 width_p, uint32 height_p) noexcept;
 
 private:
 	static FE::string __read_file(const char* const file_path_p) noexcept;

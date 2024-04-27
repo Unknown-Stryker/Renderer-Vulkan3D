@@ -10,6 +10,7 @@ SOURCE_GROUP("FE\\core\\algorithm\\private" FILES ${_ALGORITHM_PRIVATE_})
 SOURCE_GROUP("FE\\core\\log" FILES ${_LOG_})
 SOURCE_GROUP("FE\\core\\log\\private" FILES ${_LOG_PRIVATE_})
 SOURCE_GROUP("FE\\core\\containers" FILES ${_CONTAINERS_})
+SOURCE_GROUP("FE\\core\\containers\\private" FILES ${_CONTAINERS_PRIVATE_})
 SOURCE_GROUP("FE\\core\\macros" FILES ${_MACROS_})
 SOURCE_GROUP("FE\\core\\private" FILES ${_PRIVATE_})
 SOURCE_GROUP("FE\\core\\smart_pointers" FILES ${_SMART_POINTERS_})
@@ -27,6 +28,7 @@ ADD_LIBRARY(${FE_CORE_AVX} STATIC
 	${_LOG_PRIVATE_}
 	${_CONCURRENT_CONTAINERS_}
 	${_CONTAINERS_}
+	${_CONTAINERS_PRIVATE_}
 	${_MACROS_}
 	${_MEMORY_POOL_} 
 	${_PRIVATE_}

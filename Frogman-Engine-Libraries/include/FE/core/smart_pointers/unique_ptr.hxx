@@ -5,7 +5,6 @@
 #include <FE/core/allocator.hxx>
 #include <FE/core/iterator.hxx>
 #include <FE/core/memory.hxx>
-#include <atomic>
 #include <initializer_list>
 
 
@@ -32,7 +31,7 @@ private:
 public:
 	_FORCE_INLINE_ unique_ptr(const Allocator& allocator_p = Allocator()) noexcept : m_allocator(allocator_p), m_smart_ptr() {}
 	
-	_CONSTEXPR23_ ~unique_ptr() noexcept
+	_FORCE_INLINE_ _CONSTEXPR23_ ~unique_ptr() noexcept
 	{
 		if (this->m_smart_ptr == nullptr)
 		{
@@ -219,7 +218,7 @@ private:
 public:
 	_FORCE_INLINE_ unique_ptr(const Allocator& allocator_p = Allocator()) noexcept : m_allocator(allocator_p), m_smart_ptr(), m_smart_ptr_end() {}
 
-	_CONSTEXPR23_ ~unique_ptr() noexcept
+	_FORCE_INLINE_ _CONSTEXPR23_ ~unique_ptr() noexcept
 	{
 		if (this->m_smart_ptr == nullptr)
 		{

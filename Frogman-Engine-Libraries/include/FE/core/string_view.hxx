@@ -2,7 +2,7 @@
 #define _FE_CORE_STRING_VIEW_HXX_
 // Copyright © from 2023 to current, UNKNOWN STRYKER. All Rights Reserved.
 #include <FE/core/prerequisites.h>
-#include <FE/core/smart_pointers/proxy_ptr.hxx>
+#include <FE/core/smart_pointers/safe_ptr.hxx>
 #include <FE/core/algorithm/string.hxx>
 #include <FE/core/algorithm/utility.hxx>
 #include <FE/core/iterator.hxx>
@@ -23,7 +23,7 @@ class basic_string_view final
 {
 	FE_STATIC_ASSERT(FE::is_char<CharT>::value == false, "CharT is not a valid character type");
 
-	FE::proxy_ptr<CharT[]> m_watcher;
+	FE::safe_ptr<CharT[]> m_watcher;
 	var::index_t m_begin;
 	var::index_t m_end;
 
@@ -55,7 +55,7 @@ public:
 
 
 	template<class Allocator>
-	_CONSTEXPR20_ basic_string_view(const FE::exclusive_ptr<CharT[], Allocator>& source_pointer_p) noexcept : m_watcher(source_pointer_p), m_begin(), m_end()
+	_CONSTEXPR20_ basic_string_view(const FE::owner_ptr<CharT[], Allocator>& source_pointer_p) noexcept : m_watcher(source_pointer_p), m_begin(), m_end()
 	{
 		if (this->m_watcher.is_expired() == true)
 		{
@@ -99,7 +99,7 @@ public:
 	}
 
 	template<class Allocator>
-	_CONSTEXPR20_ basic_string_view& operator=(const FE::exclusive_ptr<CharT[], Allocator>& source_pointer_p) noexcept
+	_CONSTEXPR20_ basic_string_view& operator=(const FE::owner_ptr<CharT[], Allocator>& source_pointer_p) noexcept
 	{
 		if (source_pointer_p == nullptr)
 		{

@@ -58,7 +58,7 @@ public:
 		l_path_to_frag_shader = _CMAKE_PROJECT_DIRECTORY_;
 		l_path_to_frag_shader += l_frag_shader_subdirectory;
 
-		this->m_pipeline.create_pipeline(l_path_to_vert_shader.c_str(), l_path_to_frag_shader.c_str());
+		this->m_pipeline.create_pipeline(l_path_to_vert_shader.c_str(), l_path_to_frag_shader.c_str(), this->m_pipeline.get_pipeline_config_info());
 	}
 
 private:

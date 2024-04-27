@@ -2,7 +2,6 @@
 #define _FE_CORE_ITERATOR_HXX_
 // Copyright © from 2023 to current, UNKNOWN STRYKER. All Rights Reserved.
 #include <FE/core/prerequisites.h>
-#include <atomic>
 
 
 
@@ -834,7 +833,7 @@ public:
 
 
 template<typename T>
-class proxy_ptr;
+class safe_ptr;
 
 
 template <typename T>
@@ -982,7 +981,7 @@ public:
 
 	struct ptr
 	{
-		FE::proxy_ptr<T[]> _smart_ptr;
+		FE::safe_ptr<T[]> _smart_ptr;
 		var::index_t _index = 0;
 
 

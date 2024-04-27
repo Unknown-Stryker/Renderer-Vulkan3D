@@ -2,13 +2,8 @@
 #define _FE_CORE_ARRAY_HXX_
 // Copyright © from 2023 to current, UNKNOWN STRYKER. All Rights Reserved.
 #include <FE/core/prerequisites.h>
-#include <FE/core/allocator.hxx>
-#include <FE/core/algorithm/utility.hxx>
-#include <FE/core/iterator.hxx>
-#include <FE/core/memory.hxx>
-#include <FE/core/smart_pointers/smart_ptrs.h>
+#include <FE/core/containers/private/array_base.hxx>
 #include <array>
-#include <initializer_list>
 
 
 
@@ -134,6 +129,10 @@ public:
 };
 
 
+
+
+template<class T, class Allocator = FE::aligned_allocator<T>>
+using array = internal::array_impl<T, Allocator, FE::is_trivial<T>::value>;
 
 
 END_NAMESPACE

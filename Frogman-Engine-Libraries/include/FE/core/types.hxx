@@ -208,8 +208,8 @@ _MAYBE_UNUSED_	constexpr inline FE::uint64 uint64_min = min_value<FE::uint64>;
 #define _NOT_FOUND_ false
 
 
-#define _SUCCESSFUL_ true
-#define _FAILED_ false
+#define _FE_SUCCESSFUL_ true
+#define _FE_FAILED_ false
 
 
 struct null {};
@@ -335,7 +335,7 @@ public:
 
 namespace container
 {
-	template<class Container>
+	template <class Container>
 	struct range
 	{
 		ref<Container> _container;
@@ -343,7 +343,7 @@ namespace container
 		typename Container::size_type _end;
 	};
 
-	template<class Container>
+	template <class Container>
 	_FORCE_INLINE_ container::range<Container> make_range(Container& source_p, index_t begin_p, index_t end_p) noexcept
 	{
 		assert(begin_p < end_p);
@@ -356,24 +356,6 @@ namespace container
 }
 
 
-
-
-namespace concurrency
-{
-	template<typename T>
-	struct in_progress_signalptr_t
-	{
-		static T* const value;
-	};
-
-	template<typename T>
-	T* const in_progress_signalptr_t<T>::value = reinterpret_cast<T*>(0x1);
-
-	struct in_progress_uintsignal_t
-	{
-		static constexpr uint64 value = FE::uint64_max - 1;
-	};
-}
 
 
 template<typename T>

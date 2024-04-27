@@ -13,11 +13,11 @@
 BEGIN_NAMESPACE(FE::renderer)
 
 
-pipeline::pipeline(device& device_p, FE::unique_ptr<pipeline_config_info> pipeline_config_info_p) noexcept : m_device(device_p), m_graphics_pipeline(), m_vert_shader_module(), m_frag_shader_module(), m_pipeline_config_info(std::move(pipeline_config_info_p))
+pipeline::pipeline(device& device_p, FE::owner_ptr<pipeline_config_info> pipeline_config_info_p) noexcept : m_device(device_p), m_graphics_pipeline(), m_vert_shader_module(), m_frag_shader_module(), m_pipeline_config_info(std::move(pipeline_config_info_p))
 {
 }
 
-void pipeline::create_pipeline(const char* const vert_file_path_p, const char* const frag_file_path_p) noexcept
+void pipeline::create_pipeline(const char* const vert_file_path_p, const char* const frag_file_path_p, FE::safe_ptr<pipeline_config_info> config_info_p) noexcept
 {
 	FE_ASSERT(this->m_pipeline_config_info->_pipeline_layout != VK_NULL_HANDLE, "Unable to create a graphics pipeline: _pipeline_layout is nullptr.");
 	FE_ASSERT(this->m_pipeline_config_info->_render_pass != VK_NULL_HANDLE, "Unable to create a graphics pipeline: _render_pass is nullptr.");
@@ -28,48 +28,48 @@ void pipeline::create_pipeline(const char* const vert_file_path_p, const char* c
 	create_shader_module(l_vert_shader, &this->m_vert_shader_module);
 	create_shader_module(l_frag_shader, &this->m_frag_shader_module);
 
-	VkPipelineShaderStageCreateInfo l_vert_shader_stage_info{};
-	l_vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	l_vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	l_vert_shader_stage_info.module = this->m_vert_shader_module;
-	l_vert_shader_stage_info.pName = "main";
-	l_vert_shader_stage_info.flags = 0;
-	l_vert_shader_stage_info.pNext = nullptr;
-	l_vert_shader_stage_info.pSpecializationInfo = nullptr;
+	VkPipelineShaderStageCreateInfo l_shader_stages[2];
+	l_shader_stages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	l_shader_stages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+	l_shader_stages[0].module = this->m_vert_shader_module;
+	l_shader_stages[0].pName = "main";
+	l_shader_stages[0].flags = 0;
+	l_shader_stages[0].pNext = nullptr;
+	l_shader_stages[0].pSpecializationInfo = nullptr;
+	l_shader_stages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	l_shader_stages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	l_shader_stages[1].module = this->m_frag_shader_module;
+	l_shader_stages[1].pName = "main";
+	l_shader_stages[1].flags = 0;
+	l_shader_stages[1].pNext = nullptr;
+	l_shader_stages[1].pSpecializationInfo = nullptr;
 
-	VkPipelineShaderStageCreateInfo l_frag_shader_stage_info{};
-	l_frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	l_frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	l_frag_shader_stage_info.module = this->m_frag_shader_module;
-	l_frag_shader_stage_info.pName = "main";
-	l_frag_shader_stage_info.flags = 0;
-	l_frag_shader_stage_info.pNext = nullptr;
-	l_frag_shader_stage_info.pSpecializationInfo = nullptr;
+	//auto& bindingDescriptions = config_info_p->_binding_descriptions;
+	//auto& attributeDescriptions = config_info_p->_attribute_descriptions;
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	//vertexInputInfo.vertexAttributeDescriptionCount =
+	//	static_cast<uint32_t>(attributeDescriptions.size());
+	//vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());
+	//vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+	//vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
 
-
-	VkPipelineVertexInputStateCreateInfo l_vertex_input_info{};
-	l_vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	l_vertex_input_info.vertexAttributeDescriptionCount = 0;
-	l_vertex_input_info.vertexBindingDescriptionCount = 0;
-	l_vertex_input_info.pVertexAttributeDescriptions = nullptr;
-	l_vertex_input_info.pVertexBindingDescriptions = nullptr;
-	
 	VkGraphicsPipelineCreateInfo l_pipeline_info{};
 	l_pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	l_pipeline_info.stageCount = 2;
-	l_pipeline_info.pStages = &l_vert_shader_stage_info;
-	l_pipeline_info.pVertexInputState = &l_vertex_input_info;
-	l_pipeline_info.pInputAssemblyState = &this->m_pipeline_config_info->_input_assembly_info;
-	l_pipeline_info.pViewportState = &this->m_pipeline_config_info->_viewport_info;
-	l_pipeline_info.pRasterizationState = &this->m_pipeline_config_info->_rasterization_info;
-	l_pipeline_info.pMultisampleState = &this->m_pipeline_config_info->_multi_sample_info;
-	l_pipeline_info.pColorBlendState = &this->m_pipeline_config_info->_color_blend_info;
-	l_pipeline_info.pDepthStencilState = &this->m_pipeline_config_info->_depth_stencil_info;
-	l_pipeline_info.pDynamicState = nullptr;
+	l_pipeline_info.pStages = l_shader_stages;
+	l_pipeline_info.pVertexInputState = &vertexInputInfo;
+	l_pipeline_info.pInputAssemblyState = &config_info_p->_input_assembly_info;
+	l_pipeline_info.pViewportState = &config_info_p->_viewport_info;
+	l_pipeline_info.pRasterizationState = &config_info_p->_rasterization_info;
+	l_pipeline_info.pMultisampleState = &config_info_p->_multi_sample_info;
+	l_pipeline_info.pColorBlendState = &config_info_p->_color_blend_info;
+	l_pipeline_info.pDepthStencilState = &config_info_p->_depth_stencil_info;
+	//l_pipeline_info.pDynamicState = &config_info_p->_dynamic_state_info;
 
-	l_pipeline_info.layout = this->m_pipeline_config_info->_pipeline_layout;
-	l_pipeline_info.renderPass = this->m_pipeline_config_info->_render_pass;
-	l_pipeline_info.subpass = this->m_pipeline_config_info->_subpass;
+	l_pipeline_info.layout = config_info_p->_pipeline_layout;
+	l_pipeline_info.renderPass = config_info_p->_render_pass;
+	l_pipeline_info.subpass = config_info_p->_subpass;
 
 	l_pipeline_info.basePipelineIndex = -1;
 	l_pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
@@ -95,28 +95,19 @@ void pipeline::create_shader_module(const FE::string& code_p, VkShaderModule* co
 	FE_EXIT(vkCreateShaderModule(this->m_device.get_device(), &l_create_info, nullptr, shader_module_p) != VK_SUCCESS, RENDERER_ERROR_TYPE::ERROR_FROM_VULKAN, "Failed to create shader module.");
 }
 
-FE::unique_ptr<pipeline_config_info> pipeline::default_pipeline_config_info(_MAYBE_UNUSED_ uint32 width_p, _MAYBE_UNUSED_ uint32 height_p) noexcept
+FE::owner_ptr<pipeline_config_info> pipeline::default_pipeline_config_info(_MAYBE_UNUSED_ uint32 width_p, _MAYBE_UNUSED_ uint32 height_p) noexcept
 {
-	FE::unique_ptr<pipeline_config_info> l_info = FE::make_unique<pipeline_config_info>();
+	FE::owner_ptr<pipeline_config_info> l_info = FE::make_owner<pipeline_config_info>();
+
 	l_info->_input_assembly_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 	l_info->_input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	l_info->_input_assembly_info.primitiveRestartEnable = VK_FALSE;
 
-	l_info->_viewport.x = 0.0f;
-	l_info->_viewport.y = 0.0f;
-	l_info->_viewport.width = static_cast<float>(width_p);
-	l_info->_viewport.height = static_cast<float>(height_p);
-	l_info->_viewport.minDepth = 0.0f;
-	l_info->_viewport.maxDepth = 1.0f;
-
-	l_info->_scissor.offset = { 0, 0 };
-	l_info->_scissor.extent = { width_p, height_p };
-
 	l_info->_viewport_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	l_info->_viewport_info.viewportCount = 1;
-	l_info->_viewport_info.pViewports = &l_info->_viewport;
+	l_info->_viewport_info.pViewports = nullptr;
 	l_info->_viewport_info.scissorCount = 1;
-	l_info->_viewport_info.pScissors = &l_info->_scissor;
+	l_info->_viewport_info.pScissors = nullptr;
 
 	l_info->_rasterization_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	l_info->_rasterization_info.depthClampEnable = VK_FALSE;
@@ -169,6 +160,13 @@ FE::unique_ptr<pipeline_config_info> pipeline::default_pipeline_config_info(_MAY
 	l_info->_depth_stencil_info.stencilTestEnable = VK_FALSE;
 	l_info->_depth_stencil_info.front = {};  // Optional
 	l_info->_depth_stencil_info.back = {};   // Optional
+
+	//l_info->_dynamic_state_enables = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+	//l_info->_dynamic_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	//l_info->_dynamic_state_info.pDynamicStates = l_info->dynamic_state_enables.data();
+	//l_info->_dynamic_state_info.dynamicStateCount =
+	//	static_cast<uint32_t>(l_info->_dynamic_state_enables.size());
+	//l_info->_dynamic_state_info.flags = 0;
 
 	return std::move(l_info);
 }
